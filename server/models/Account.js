@@ -8,6 +8,7 @@ const iterations = 10000;
 const saltLength = 64;
 const keyLength = 64;
 
+// definition of what data should look like
 const AccountSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -30,6 +31,8 @@ const AccountSchema = new mongoose.Schema({
   },
 });
 
+// anything attatched to schema in statics, can be accessible through the Model
+// not attached to database object directly
 AccountSchema.statics.toAPI = doc => ({
   // _id is built into your mongo document and is guaranteed to be unique
   username: doc.username,
