@@ -1,4 +1,5 @@
 const models = require('../models');
+
 const Account = models.Account;
 
 const loginPage = (req, res) => {
@@ -6,21 +7,20 @@ const loginPage = (req, res) => {
 };
 
 const logout = (req, res) => {
-  // every request will have a session object that manages user's sessions and session variables
   req.session.destroy();
   res.redirect('/');
 };
-
 
 const login = (request, response) => {
   const req = request;
   const res = response;
 
+  // force cast to strings
   const username = `${req.body.username}`;
   const password = `${req.body.pass}`;
 
   if (!username || !password) {
-    return res.status(400).json({ error: 'RAWR All fields are required' });
+    return res.status(400).json({ error: 'RAWR! All fields are required' });
   }
 
   return Account.AccountModel.authenticate(username, password, (err, account) => {
@@ -28,7 +28,6 @@ const login = (request, response) => {
       return res.status(401).json({ error: 'Wrong username or password' });
     }
 
-      // storing variables/data. attaching all fields from toAPI to session for tracking
     req.session.account = Account.AccountModel.toAPI(account);
 
     return res.json({ redirect: '/maker' });
@@ -44,17 +43,14 @@ const signup = (request, response) => {
   req.body.pass = `${req.body.pass}`;
   req.body.pass2 = `${req.body.pass2}`;
 
-  // check if all fields are filled out
   if (!req.body.username || !req.body.pass || !req.body.pass2) {
     return res.status(400).json({ error: 'RAWR! All fields are required' });
   }
 
-  // check if passwords match
   if (req.body.pass !== req.body.pass2) {
     return res.status(400).json({ error: 'RAWR! Passwords do not match' });
   }
 
-  // generate a new encrypted password hash and salt. these will be stored in the db
   return Account.AccountModel.generateHash(req.body.pass, (salt, hash) => {
     const accountData = {
       username: req.body.username,
@@ -67,9 +63,7 @@ const signup = (request, response) => {
     const savePromise = newAccount.save();
 
     savePromise.then(() => {
-        // attach account data from toAPI and save the data in a session
       req.session.account = Account.AccountModel.toAPI(newAccount);
-
       res.json({ redirect: '/maker' });
     });
 
@@ -85,6 +79,7 @@ const signup = (request, response) => {
   });
 };
 
+
 const getToken = (request, response) => {
   const req = request;
   const res = response;
@@ -95,6 +90,7 @@ const getToken = (request, response) => {
 
   res.json(csrfJSON);
 };
+
 
 module.exports.loginPage = loginPage;
 module.exports.login = login;

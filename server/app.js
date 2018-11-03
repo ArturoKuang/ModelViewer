@@ -1,5 +1,3 @@
-// set up express MVC functionality, server, db connection
-
 // import libraries
 const path = require('path');
 const express = require('express');
@@ -9,7 +7,6 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const expressHandlebars = require('express-handlebars');
-const app = express();
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const url = require('url');
@@ -26,8 +23,6 @@ mongoose.connect(dbURL, (err) => {
   }
 });
 
-// get username/password for connecting to Redis
-// either parsing it out from heroku, else assume its running locally
 let redisURL = {
   hostname: 'localhost',
   port: 6379,
@@ -43,14 +38,14 @@ if (process.env.REDISCLOUD_URL) {
 // pull in our routes
 const router = require('./router.js');
 
+const app = express();
 app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted/`)));
 app.use(favicon(`${__dirname}/../hosted/img/favicon.png`));
+app.disable('x-powered-by');
 app.use(compression());
 app.use(bodyParser.urlencoded({
   extended: true,
 }));
-
-// session configuration
 app.use(session({
   key: 'sessionid',
   store: new RedisStore({
@@ -67,11 +62,8 @@ app.use(session({
 }));
 app.engine('handlebars', expressHandlebars({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
-
-app.engine('handlebars', expressHandlebars({ defaultLayout: 'main' }));
-app.set('view engine', 'handlebars');
 app.set('views', `${__dirname}/../views`);
-app.disable('x-powered-by');
+
 app.use(cookieParser());
 
 app.use(csrf());
@@ -81,6 +73,7 @@ app.use((err, req, res, next) => {
   console.log('Missing CSRF token');
   return false;
 });
+
 
 router(app);
 
