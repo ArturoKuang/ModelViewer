@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const _ = require('underscore');
 
-let DomoModel = {};
+let SceneModel = {};
 
 // mongoose.Types.ObjectID is a function that
 // converts string ID to real mongo ID
 const convertId = mongoose.Types.ObjectId;
 const setName = (name) => _.escape(name).trim();
 
-const DomoSchema = new mongoose.Schema({
+const SceneSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -41,28 +41,28 @@ const DomoSchema = new mongoose.Schema({
   },
 });
 
-DomoSchema.statics.toAPI = (doc) => ({
+SceneSchema.statics.toAPI = (doc) => ({
   name: doc.name,
   age: doc.age,
   level: doc.level,
   id: doc._id,
 });
 
-DomoSchema.statics.findByOwner = (ownerId, callback) => {
+SceneSchema.statics.findByOwner = (ownerId, callback) => {
   const search = {
     owner: convertId(ownerId),
   };
 
-  return DomoModel.find(search).select('name age level _id').exec(callback);
+  return SceneModel.find(search).select('name age level _id').exec(callback);
 };
 
-// deletes a domo from the database by using its id
-DomoSchema.statics.deleteById = (domoId, callback) => {
-  DomoModel.deleteOne({ _id: convertId(domoId) }).exec(callback);
+// deletes a Scene from the database by using its id
+SceneSchema.statics.deleteById = (SceneId, callback) => {
+  SceneModel.deleteOne({ _id: convertId(SceneId) }).exec(callback);
 };
 
 
-DomoModel = mongoose.model('Domo', DomoSchema);
+SceneModel = mongoose.model('Scene', SceneSchema);
 
-module.exports.DomoModel = DomoModel;
-module.exports.DomoSchema = DomoSchema;
+module.exports.SceneModel = SceneModel;
+module.exports.SceneSchema = SceneSchema;

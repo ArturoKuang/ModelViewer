@@ -1,27 +1,72 @@
 <html lang="en">
+
 <head>
-  <meta charset="utf-8"/>
-  <title>DomoMaker</title>
+  <meta charset="utf-8" />
+  <title>SceneMaker</title>
   <script crossorigin src="https://unpkg.com/react@15/dist/react.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
   <script crossorigin src="https://unpkg.com/prop-types/prop-types.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.6.2/remarkable.min.js"></script>
-  <link rel="shortcut icon" href="/assets/img/favicon.png"/>
-  <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
+  <!-- Link to the last version of BabylonJS -->
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <!-- Link to the last version of BabylonJS loaders to enable loading filetypes such as .gltf -->
+  <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+  <!-- Link to pep.js to ensure pointer events work consistently in all browsers -->
+  <script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>
+  <link rel="shortcut icon" href="/assets/img/favicon.png" />
+  <link rel="stylesheet" type="text/css" href="/assets/style.css" />
 </head>
+
 <body>
-  <nav><a href="/login"><img id="logo" src="/assets/img/face.png" alt="face logo"/></a>
+  <nav></a>
     <div class="navlink"><a href="/logout">Log out</a></div>
   </nav>
-  <section id="makeDomo">
+  <section>
+    <canvas id="renderCanvas"></canvas>
   </section>
-  <section id="domos">
-  </section>
-  <div id="domoMessage"><img id="speech" src="/assets/img/speech.png" alt="speech box"/>
-    <h3><span id="errorMessage"></span></h3><img id="domo" src="assets/img/domo.png" alt="domo"/>
+  <div id="modelMessage">
+    <h3><span id="errorMessage"></span></h3>
   </div>
   <script src="/assets/bundle.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      var canvas = document.getElementById('renderCanvas');
+      var engine = new BABYLON.Engine(canvas, true);
+      var createScene = function () {
+        var scene = new BABYLON.Scene(engine);
+
+        //Adding a light
+        var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(20, 20, 100), scene);
+
+        //Adding an Arc Rotate Camera
+        var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvas, false);
+
+        // The first parameter can be used to specify which mesh to import. Here we import all meshes
+        BABYLON.SceneLoader.ImportMesh("", "/assets/scenes/", "skull.babylon", scene, function (newMeshes) {
+          // Set the target of the camera to the first imported mesh
+          camera.target = newMeshes[0];
+        });
+
+        // Move the light with the camera
+        scene.registerBeforeRender(function () {
+          light.position = camera.position;
+        });
+
+        return scene;
+      }
+      var scene = createScene();
+      engine.runRenderLoop(function () {
+        scene.render();
+      });
+      window.addEventListener('resize', function () {
+        engine.resize();
+      });
+
+    });
+  </script>
 </body>
+
 </html>
